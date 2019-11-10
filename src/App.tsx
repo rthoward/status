@@ -15,7 +15,7 @@ import {
   Route,
   Redirect
 } from "react-router-dom"
-import { useAuth } from "./context/authContext"
+import config from "./config"
 
 const Status = _props => {
   return (
@@ -49,6 +49,8 @@ const PrivateRoute = ({ children, isAuthenticated, ...rest }) => {
 const App = _props => {
   const user = useUser()
   const health = useHealth()
+
+  console.log(config)
 
   useEffect(() => {
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
