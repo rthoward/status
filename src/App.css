@@ -20,3 +20,20 @@
 .App-link {
   color: #09d3ac;
 }
+
+.Status-color_blue {
+  background-color: #2d4370 !important;
+  color: #a7b2c9;
+}
+.Status-color_yellow {
+  background-color: #a89738 !important;
+  color: #fff8cf;
+}
+.Status-color_orange {
+  background-color: #a86338 !important;
+  color: #ffe1cf;
+}
+
+.emoji-avatar {
+  font-size: 2rem;
+}

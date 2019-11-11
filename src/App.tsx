@@ -1,20 +1,21 @@
 import React, { useEffect } from "react"
 import { Socket } from "phoenix"
 import Container from "react-bootstrap/Container"
-
-import Register from "./components/Register"
-import Login from "./components/Login"
-import Header from "./components/Header"
-import "./App.css"
-import { useHealth } from "./hooks"
-import { useUser } from "./context/userContext"
-
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect
 } from "react-router-dom"
+
+import Register from "./components/Register"
+import Login from "./components/Login"
+import Header from "./components/Header"
+import Statuses from "./components/Statuses"
+import { useHealth } from "./hooks"
+import { useUser } from "./context/userContext"
+
+import "./App.css"
 import config from "./config"
 
 const Status = _props => {
@@ -26,7 +27,6 @@ const Status = _props => {
 }
 
 const PrivateRoute = ({ children, isAuthenticated, ...rest }) => {
-  console.log("isAuthenticated", isAuthenticated)
   return (
     <Route
       {...rest}
@@ -50,8 +50,6 @@ const App = _props => {
   const user = useUser()
   const health = useHealth()
 
-  console.log(config)
-
   useEffect(() => {
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
     let socket = new Socket(socketUrl)
@@ -60,10 +58,8 @@ const App = _props => {
     channel
       .join()
       .receive("ok", resp => {
-        console.log("Joined successfully", resp)
       })
       .receive("error", resp => {
-        console.log("Unable to join", resp)
       })
 
     return () => {
@@ -87,7 +83,7 @@ const App = _props => {
               isAuthenticated={user && user.isAuthenticated}
               path="/"
             >
-              <Status />
+              <Statuses />
             </PrivateRoute>
           </Switch>
         </Container>
