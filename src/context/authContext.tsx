@@ -58,7 +58,6 @@ function AuthProvider(props) {
   }
 
   const logout = () => {
-    console.log("logging out")
     setData({ user: nullUser })
     storage.set("user", nullUser)
   }

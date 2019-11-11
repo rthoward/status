@@ -9,7 +9,7 @@ export const useQuery = () => {
 }
 
 export const useHealth = config.useHealth
-  ? (interval = 3000) => {
+  ? (interval = 10000) => {
       const [health, setHealth] = useState(false)
 
       useEffect(() => {

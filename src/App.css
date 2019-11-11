@@ -1,22 +1,52 @@
-.App {
-  text-align: center;
+.container-fluid {
+    padding: 0 !important;
 }
 
-.App-logo {
-  height: 40vmin;
+.status-container {
+    display: flex;
+    flex-direction: column;
+    height: 92vh;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.Place {
+    padding: 0.5rem;
+    width: 100%;
+    flex-basis: 16.66%;
 }
 
-.App-link {
-  color: #09d3ac;
+.Place_title {
+}
+
+.Place_home {
+    background-color: #f7be87;
+}
+
+.Place_work {
+    background-color: #8ca4b1;
+}
+
+.Place_heading-home {
+    background-color: #aacfaa;
+}
+
+.Place_gym {
+    background-color: #f9dca9;
+}
+
+.Place_out {
+    background-color: #f9bfa5;
+}
+
+.avatars-container {
+    display: flex;
+    margin-top: 0.25rem;
+}
+
+.UserAvatar {
+    min-height: 1rem;
+    width: min-content;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    border: 3px solid white;
+    border-radius: 50%;
 }
