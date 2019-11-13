@@ -10,13 +10,13 @@ const LoginLink = () => {
   return <div></div>
 }
 
-const UserDropdown = ({ user, logout }) => {
+const Menu = ({ user, logout }) => {
   return (
-    <NavDropdown title={user.email} id="basic-nav-dropdown">
-      <NavDropdown.Item href="#">Profile</NavDropdown.Item>
+    <div>
+      <NavDropdown.Item href="#">{user.email} - Profile</NavDropdown.Item>
       <NavDropdown.Divider />
       <NavDropdown.Item onClick={logout}>Log out</NavDropdown.Item>
-    </NavDropdown>
+    </div>
   )
 }
 
@@ -31,7 +31,7 @@ export default ({ health }) => {
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
           {user.isAuthenticated ? (
-            <UserDropdown user={user} logout={logout} />
+            <Menu user={user} logout={logout} />
           ) : (
             <LoginLink />
           )}
