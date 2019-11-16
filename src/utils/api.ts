@@ -35,6 +35,10 @@ class Api {
     baseURL: config.apiBase
   })
 
+  setAuthHeader(authToken) {
+    this.api.setHeader("Authorization", authToken)
+  }
+
   async login({
     email,
     password
@@ -42,10 +46,27 @@ class Api {
     return this.api.post("/session", { user: { email, password } })
   }
 
-  async register({ email, password, confirmPassword }): Promise<any> {
+  async register({
+    email,
+    username,
+    avatar,
+    password,
+    confirmPassword
+  }): Promise<any> {
     return this.api.post("/registration", {
-      user: { email, password, confirm_password: confirmPassword }
+      user: {
+        email,
+        username,
+        avatar,
+        password,
+        confirm_password: confirmPassword
+      }
     })
+  }
+
+  async renew({ renewToken }): Promise<any> {
+    this.setAuthHeader(renewToken)
+    return this.api.post("/session/renew")
   }
 
   async health(): Promise<any> {

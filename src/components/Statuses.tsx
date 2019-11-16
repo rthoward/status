@@ -26,7 +26,9 @@ const Statuses = _props => {
 
   useEffect(() => {
     api.statuses().then(response => {
-      const usersArray = response.data.data.users
+      console.log(response)
+      const usersArray = response.data.users
+      console.log(usersArray)
       const usersByPlace = R.groupBy(
         R.pathOr("unknown", ["status", "place", "name"]),
         usersArray

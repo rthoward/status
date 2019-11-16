@@ -16,6 +16,7 @@ import { useHealth } from "./hooks"
 import { useUser } from "./context/userContext"
 
 import "./App.css"
+import { useAuth } from "./context/authContext"
 
 const PrivateRoute = ({ children, isAuthenticated, ...rest }) => {
   return (
@@ -40,6 +41,11 @@ const PrivateRoute = ({ children, isAuthenticated, ...rest }) => {
 const App = _props => {
   const user = useUser()
   const health = useHealth()
+  const auth = useAuth()
+
+  useEffect(() => {
+    auth.tryRenew()
+  }, [])
 
   useEffect(() => {
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
