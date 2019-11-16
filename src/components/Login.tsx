@@ -9,6 +9,7 @@ import InputGroup from "react-bootstrap/InputGroup"
 
 import api from "../utils/api"
 import { useAuth } from "../context/authContext"
+import { mapErrors } from "../utils/forms"
 
 export default _props => {
   const history = useHistory()
@@ -30,7 +31,7 @@ export default _props => {
         auth.login({ email, authToken, renewToken })
         history.push(redirectTo || "/")
       } else if (response.data) {
-        // mapErrors(response.data.error, actions)
+        mapErrors(response.data.error, actions)
       }
     })
   }
@@ -82,7 +83,6 @@ export default _props => {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
-            {props.status}
             <Button variant="primary" type="submit">
               Login
             </Button>

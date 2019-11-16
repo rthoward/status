@@ -42,7 +42,7 @@ class Api {
   async login({
     email,
     password
-  }): Promise<ApiResponse<LoginResponse, ErrorResponse>> {
+  }): Promise<any> {
     return this.api.post("/session", { user: { email, password } })
   }
 
