@@ -36,13 +36,10 @@ class Api {
   })
 
   setAuthHeader(authToken) {
-    this.api.setHeader("Authorization", authToken)
+    this.api.setHeader("Authorization", `Bearer ${authToken}`)
   }
 
-  async login({
-    email,
-    password
-  }): Promise<any> {
+  async login({ email, password }): Promise<any> {
     return this.api.post("/session", { user: { email, password } })
   }
 

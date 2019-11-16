@@ -27,6 +27,20 @@ export default _props => {
     from: { pathname: redirectTo }
   } = location.state || { from: { pathname: "/" } }
 
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email()
+      .required("Required"),
+    username: Yup.string().required("Required"),
+    avatar: Yup.string()
+      .length(2)
+      .required("Required"),
+    password: Yup.string().required("Required"),
+    confirm_password: Yup.string()
+      .required("Required")
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+  })
+
   const onSubmit = (values, actions) => {
     api
       .register({
@@ -46,24 +60,10 @@ export default _props => {
           auth.login({ email: values.email, authToken, renewToken })
           history.push(redirectTo || "/")
         } else if (response.data) {
-          mapErrors(response.data.error.errors, actions)
+          mapErrors(validationSchema, response.data.error.errors, actions)
         }
       })
   }
-
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email()
-      .required("Required"),
-    username: Yup.string().required("Required"),
-    avatar: Yup.string()
-      .length(2)
-      .required("Required"),
-    password: Yup.string().required("Required"),
-    confirm_password: Yup.string()
-      .required("Required")
-      .oneOf([Yup.ref("password"), null], "Passwords must match")
-  })
 
   return (
     <div className="register">

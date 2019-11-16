@@ -20,6 +20,13 @@ export default _props => {
     from: { pathname: redirectTo }
   } = location.state || { from: { pathname: "/" } }
 
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email()
+      .required("Required"),
+    password: Yup.string().required("Required")
+  })
+
   const initialValues = { email: "", password: "" }
   const onSubmit = ({ email, password }, actions) => {
     api.login({ email, password }).then(response => {
@@ -31,17 +38,10 @@ export default _props => {
         auth.login({ email, authToken, renewToken })
         history.push(redirectTo || "/")
       } else if (response.data) {
-        mapErrors(response.data.error, actions)
+        mapErrors(validationSchema, response.data.error, actions)
       }
     })
   }
-
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email()
-      .required("Required"),
-    password: Yup.string().required("Required")
-  })
 
   return (
     <div className="register">
