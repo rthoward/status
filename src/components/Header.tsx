@@ -20,7 +20,7 @@ const Menu = ({ user, logout }) => {
   )
 }
 
-export default ({ health }) => {
+export default _props => {
   const user = useUser()
   const { logout } = useAuth()
 

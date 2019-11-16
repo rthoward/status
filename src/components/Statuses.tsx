@@ -24,18 +24,19 @@ const Statuses = _props => {
   const [users, setUsers] = useState({})
   const getUsersByPlace = placeName => R.propOr([], placeName)(users)
 
-  useEffect(() => {
-    api.statuses().then(response => {
-      console.log(response)
-      const usersArray = response.data.users
-      console.log(usersArray)
-      const usersByPlace = R.groupBy(
-        R.pathOr("unknown", ["status", "place", "name"]),
-        usersArray
-      )
+  console.log("Statuses component")
 
-      setUsers(usersByPlace)
-    })
+  useEffect(() => {
+    // api.statuses().then(response => {
+    //   console.log(response)
+    //   const usersArray = response.data.users
+    //   console.log(usersArray)
+    //   const usersByPlace = R.groupBy(
+    //     R.pathOr("unknown", ["status", "place", "name"]),
+    //     usersArray
+    //   )
+    //   setUsers(usersByPlace)
+    // })
   }, [])
 
   return (

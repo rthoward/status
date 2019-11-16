@@ -42,15 +42,12 @@ export default _props => {
             token: authToken,
             renew_token: renewToken
           } = response.data.data
-          auth.login({ email: values.email, authToken, renewToken })
           actions.setSubmitting(false)
+          auth.login({ email: values.email, authToken, renewToken })
           history.push(redirectTo || "/")
         } else if (response.data) {
           mapErrors(response.data.error.errors, actions)
         }
-      })
-      .finally(() => {
-        actions.setSubmitting(false)
       })
   }
 

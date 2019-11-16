@@ -26,8 +26,8 @@ export default _props => {
         const {
           data: { token: authToken, renew_token: renewToken }
         } = response.data
-        auth.login({ email, authToken, renewToken })
         actions.setSubmitting(false)
+        auth.login({ email, authToken, renewToken })
         history.push(redirectTo || "/")
       } else if (response.data) {
         // mapErrors(response.data.error, actions)

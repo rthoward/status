@@ -69,7 +69,6 @@ function AuthProvider(props) {
 
     if (user && user.renewToken) {
       api.renew({ renewToken: user.renewToken }).then(response => {
-        console.log(response)
         if (response.ok) {
           const { token, renew_token } = response.data.data
           const updatedUser = {
@@ -79,6 +78,7 @@ function AuthProvider(props) {
           }
           setData({ user: updatedUser })
           storage.set("user", updatedUser)
+          api.setAuthHeader({ token })
           console.log("Renewed session.")
         } else {
           console.log("Failed to renew session.")
