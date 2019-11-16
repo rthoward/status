@@ -2,6 +2,7 @@ import React, { useState } from "react"
 
 import { AuthData } from "../interfaces"
 import storage from "../utils/storage"
+import api from "../utils/api"
 
 const nullUser = {
   email: "",
@@ -10,7 +11,7 @@ const nullUser = {
   renewToken: ""
 }
 const defaultData: AuthData = {
-  user: storage.get("user", nullUser)
+  user: { ...storage.get("user", nullUser), isAuthenticated: false }
 }
 const AuthContext: any = React.createContext(defaultData)
 
@@ -53,8 +54,9 @@ function AuthProvider(props) {
 
   const login = ({ email, authToken, renewToken }) => {
     const user: any = { email, authToken, renewToken, isAuthenticated: true }
-    setData({ user })
     storage.set("user", user)
+    api.setAuthHeader(authToken)
+    setData({ user })
   }
 
   const logout = () => {
@@ -62,7 +64,40 @@ function AuthProvider(props) {
     storage.set("user", nullUser)
   }
 
-  return <AuthContext.Provider value={{ data, login, logout }} {...props} />
+  const tryRenew = () => {
+    const { user } = data
+
+    if (user && user.renewToken) {
+      api.renew({ renewToken: user.renewToken }).then(response => {
+        if (response.ok) {
+          const { token, renew_token } = response.data.data
+          const updatedUser = {
+            ...user,
+            authToken: token,
+            renewToken: renew_token,
+            isAuthenticated: true
+          }
+          setData({ user: updatedUser })
+          storage.set("user", updatedUser)
+          api.setAuthHeader(token)
+          console.log("Renewed session.")
+        } else {
+          console.log("Failed to renew session.")
+          logout()
+        }
+      })
+    } else {
+      console.log("No active session.")
+      logout()
+    }
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{ data, login, logout, tryRenew }}
+      {...props}
+    />
+  )
 }
 
 const useAuth = (): any => React.useContext(AuthContext)

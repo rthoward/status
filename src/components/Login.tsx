@@ -9,6 +9,7 @@ import InputGroup from "react-bootstrap/InputGroup"
 
 import api from "../utils/api"
 import { useAuth } from "../context/authContext"
+import { mapErrors } from "../utils/forms"
 
 export default _props => {
   const history = useHistory()
@@ -19,28 +20,28 @@ export default _props => {
     from: { pathname: redirectTo }
   } = location.state || { from: { pathname: "/" } }
 
-  const initialValues = { email: "", password: "" }
-  const onSubmit = ({ email, password }, actions) => {
-    api.login({ email, password }).then(response => {
-      if (response.ok && response.data) {
-        const {
-          data: { token: authToken, renew_token: renewToken }
-        } = response.data
-        auth.login({ email, authToken, renewToken })
-        actions.setSubmitting(false)
-        history.push(redirectTo || "/")
-      } else if (response.data) {
-        // mapErrors(response.data.error, actions)
-      }
-    })
-  }
-
   const validationSchema = Yup.object({
     email: Yup.string()
       .email()
       .required("Required"),
     password: Yup.string().required("Required")
   })
+
+  const initialValues = { email: "", password: "" }
+  const onSubmit = ({ email, password }, actions) => {
+    api.login({ email, password }).then(response => {
+      if (response.ok) {
+        const {
+          data: { token: authToken, renew_token: renewToken }
+        } = response.data!
+        actions.setSubmitting(false)
+        auth.login({ email, authToken, renewToken })
+        history.push(redirectTo || "/")
+      } else {
+        mapErrors(validationSchema, response.data!.error, actions)
+      }
+    })
+  }
 
   return (
     <div className="register">
@@ -82,7 +83,6 @@ export default _props => {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
-            {props.status}
             <Button variant="primary" type="submit">
               Login
             </Button>

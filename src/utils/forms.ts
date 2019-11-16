@@ -1,7 +1,9 @@
-import { forEachObjIndexed } from "ramda"
+import { keys, pick, forEachObjIndexed } from "ramda"
 
-export const mapErrors = (errors, actions) => {
+export const mapErrors = (validationSchema, errors, actions) => {
+  const allowedKeys: any = keys(validationSchema.fields)
+  const filtered = pick(allowedKeys, errors)
   forEachObjIndexed((value, key) => {
     actions.setFieldError(key, value.join(", "))
-  }, errors)
+  }, filtered)
 }

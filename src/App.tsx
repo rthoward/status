@@ -12,35 +12,12 @@ import Register from "./components/Register"
 import Login from "./components/Login"
 import Header from "./components/Header"
 import Statuses from "./components/Statuses"
-import { useHealth } from "./hooks"
 import { useUser } from "./context/userContext"
 
 import "./App.css"
+import { useAuth } from "./context/authContext"
 
-const PrivateRoute = ({ children, isAuthenticated, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        isAuthenticated ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/login",
-              state: { from: location }
-            }}
-          />
-        )
-      }
-    />
-  )
-}
-
-const App = _props => {
-  const user = useUser()
-  const health = useHealth()
-
+const AuthenticatedApp = _props => {
   useEffect(() => {
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
     let socket = new Socket(socketUrl)
@@ -48,10 +25,8 @@ const App = _props => {
     let channel = socket.channel("status:update", {})
     channel
       .join()
-      .receive("ok", resp => {
-      })
-      .receive("error", resp => {
-      })
+      .receive("ok", resp => {})
+      .receive("error", resp => {})
 
     return () => {
       socket.disconnect()
@@ -60,23 +35,55 @@ const App = _props => {
 
   return (
     <div>
+      <Container fluid>
+        <Switch>
+          <Route path="/">
+            <Statuses />
+          </Route>
+        </Switch>
+      </Container>
+    </div>
+  )
+}
+
+const UnauthenticatedApp = _props => {
+  return (
+    <div>
+      <Container>
+        <Switch>
+          <Route path="/register">
+            <Register />
+          </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route>
+            <Redirect to="/login" />
+          </Route>
+        </Switch>
+      </Container>
+    </div>
+  )
+}
+
+const App = _props => {
+  const user = useUser()
+  const auth = useAuth()
+
+  useEffect(() => {
+    auth.tryRenew()
+  }, [])
+
+  return (
+    <div>
       <Router>
-        <Header health={health} />
         <Container fluid>
-          <Switch>
-            <Route path="/register">
-              <Register />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <PrivateRoute
-              isAuthenticated={user && user.isAuthenticated}
-              path="/"
-            >
-              <Statuses />
-            </PrivateRoute>
-          </Switch>
+          <Header health={false} />
+          {user && user.isAuthenticated ? (
+            <AuthenticatedApp />
+          ) : (
+            <UnauthenticatedApp />
+          )}
         </Container>
       </Router>
     </div>

@@ -12,7 +12,13 @@ import api from "../utils/api"
 import { useAuth } from "../context/authContext"
 
 export default _props => {
-  const initialValues = { email: "", password: "", confirm_password: "" }
+  const initialValues = {
+    email: "",
+    password: "",
+    username: "",
+    avatar: "",
+    confirm_password: ""
+  }
   const auth = useAuth()
   const history = useHistory()
   const location = useLocation()
@@ -21,40 +27,43 @@ export default _props => {
     from: { pathname: redirectTo }
   } = location.state || { from: { pathname: "/" } }
 
-  const onSubmit = (values, actions) => {
-    api
-      .register({
-        email: values.email,
-        password: values.password,
-        confirmPassword: values.confirm_password
-      })
-      .then(response => {
-        if (response.ok && response.data) {
-          const {
-            token: authToken,
-            renew_token: renewToken
-          } = response.data.data
-          auth.login({ email: values.email, authToken, renewToken })
-          actions.setSubmitting(false)
-          history.push(redirectTo || "/")
-        } else if (response.data) {
-          mapErrors(response.data.error.errors, actions)
-        }
-      })
-      .finally(() => {
-        actions.setSubmitting(false)
-      })
-  }
-
   const validationSchema = Yup.object({
     email: Yup.string()
       .email()
+      .required("Required"),
+    username: Yup.string().required("Required"),
+    avatar: Yup.string()
+      .length(2)
       .required("Required"),
     password: Yup.string().required("Required"),
     confirm_password: Yup.string()
       .required("Required")
       .oneOf([Yup.ref("password"), null], "Passwords must match")
   })
+
+  const onSubmit = (values, actions) => {
+    api
+      .register({
+        email: values.email,
+        username: values.username,
+        avatar: values.avatar,
+        password: values.password,
+        confirmPassword: values.confirm_password
+      })
+      .then(response => {
+        if (response.ok) {
+          const {
+            token: authToken,
+            renew_token: renewToken
+          } = response.data!.data
+          actions.setSubmitting(false)
+          auth.login({ email: values.email, authToken, renewToken })
+          history.push(redirectTo || "/")
+        } else {
+          mapErrors(validationSchema, response.data!.error.errors, actions)
+        }
+      })
+  }
 
   return (
     <div className="register">
@@ -78,6 +87,36 @@ export default _props => {
                 />
                 <Form.Control.Feedback type="invalid">
                   {props.errors.email}
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Username</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  id="username"
+                  isValid={props.touched.username && !props.errors.username}
+                  isInvalid={props.touched.username && !!props.errors.username}
+                  onChange={props.handleChange}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {props.errors.username}
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Avatar</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  id="avatar"
+                  isValid={props.touched.avatar && !props.errors.avatar}
+                  isInvalid={props.touched.avatar && !!props.errors.avatar}
+                  onChange={props.handleChange}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {props.errors.avatar}
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
