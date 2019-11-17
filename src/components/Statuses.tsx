@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import * as R from "ramda"
 
 import api from "../utils/api"
+import { useAuth } from "../context/authContext"
 
 const UserAvatar = ({ user }) => {
   return <div className="UserAvatar">{user.avatar}</div>
@@ -21,22 +22,16 @@ const Place = ({ name, users }) => {
 }
 
 const Statuses = _props => {
+  const auth = useAuth()
   const [users, setUsers] = useState({})
   const getUsersByPlace = placeName => R.propOr([], placeName)(users)
 
   console.log("Statuses component")
 
   useEffect(() => {
-    // api.statuses().then(response => {
-    //   console.log(response)
-    //   const usersArray = response.data.users
-    //   console.log(usersArray)
-    //   const usersByPlace = R.groupBy(
-    //     R.pathOr("unknown", ["status", "place", "name"]),
-    //     usersArray
-    //   )
-    //   setUsers(usersByPlace)
-    // })
+    api.statuses().then(response => {
+      console.log(response)
+    })
   }, [])
 
   return (
