@@ -30,15 +30,15 @@ export default _props => {
   const initialValues = { email: "", password: "" }
   const onSubmit = ({ email, password }, actions) => {
     api.login({ email, password }).then(response => {
-      if (response.ok && response.data) {
+      if (response.ok) {
         const {
           data: { token: authToken, renew_token: renewToken }
-        } = response.data
+        } = response.data!
         actions.setSubmitting(false)
         auth.login({ email, authToken, renewToken })
         history.push(redirectTo || "/")
-      } else if (response.data) {
-        mapErrors(validationSchema, response.data.error, actions)
+      } else {
+        mapErrors(validationSchema, response.data!.error, actions)
       }
     })
   }

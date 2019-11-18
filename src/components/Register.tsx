@@ -51,16 +51,16 @@ export default _props => {
         confirmPassword: values.confirm_password
       })
       .then(response => {
-        if (response.ok && response.data) {
+        if (response.ok) {
           const {
             token: authToken,
             renew_token: renewToken
-          } = response.data.data
+          } = response.data!.data
           actions.setSubmitting(false)
           auth.login({ email: values.email, authToken, renewToken })
           history.push(redirectTo || "/")
-        } else if (response.data) {
-          mapErrors(validationSchema, response.data.error.errors, actions)
+        } else {
+          mapErrors(validationSchema, response.data!.error.errors, actions)
         }
       })
   }

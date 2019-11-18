@@ -44,9 +44,11 @@
 
 .UserAvatar {
     min-height: 1rem;
+    min-width: 2.5rem;
     width: min-content;
     padding: 0.5rem;
     margin-right: 0.5rem;
     border: 3px solid white;
     border-radius: 50%;
+    text-align: center;
 }

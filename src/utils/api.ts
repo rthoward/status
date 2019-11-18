@@ -30,6 +30,20 @@ interface ErrorResponse {
   }
 }
 
+interface Status {
+  id: number
+  user: number
+  location: string
+  inserted_at: string
+  updated_at: string
+}
+
+interface StatusResponse {
+  data: {
+    statuses: Status[]
+  }
+}
+
 class Api {
   api = create({
     baseURL: config.apiBase
@@ -39,7 +53,10 @@ class Api {
     this.api.setHeader("Authorization", `Bearer ${authToken}`)
   }
 
-  async login({ email, password }): Promise<any> {
+  async login({
+    email,
+    password
+  }): Promise<ApiResponse<LoginResponse, ErrorResponse>> {
     return this.api.post("/session", { user: { email, password } })
   }
 
@@ -49,7 +66,7 @@ class Api {
     avatar,
     password,
     confirmPassword
-  }): Promise<any> {
+  }): Promise<ApiResponse<RegisterResponse, ErrorResponse>> {
     return this.api.post("/registration", {
       user: {
         email,
@@ -70,7 +87,7 @@ class Api {
     return this.api.get("/health")
   }
 
-  async statuses(): Promise<any> {
+  async statuses(): Promise<ApiResponse<StatusResponse>> {
     return this.api.get("/status")
   }
 }

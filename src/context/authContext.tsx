@@ -11,7 +11,7 @@ const nullUser = {
   renewToken: ""
 }
 const defaultData: AuthData = {
-  user: storage.get("user", nullUser)
+  user: { ...storage.get("user", nullUser), isAuthenticated: false }
 }
 const AuthContext: any = React.createContext(defaultData)
 
@@ -55,7 +55,7 @@ function AuthProvider(props) {
   const login = ({ email, authToken, renewToken }) => {
     const user: any = { email, authToken, renewToken, isAuthenticated: true }
     storage.set("user", user)
-    api.setAuthHeader({ authToken })
+    api.setAuthHeader(authToken)
     setData({ user })
   }
 
@@ -74,11 +74,12 @@ function AuthProvider(props) {
           const updatedUser = {
             ...user,
             authToken: token,
-            renewToken: renew_token
+            renewToken: renew_token,
+            isAuthenticated: true
           }
           setData({ user: updatedUser })
           storage.set("user", updatedUser)
-          api.setAuthHeader({ token })
+          api.setAuthHeader(token)
           console.log("Renewed session.")
         } else {
           console.log("Failed to renew session.")
