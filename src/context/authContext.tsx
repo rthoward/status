@@ -3,6 +3,8 @@ import React, { useState } from "react"
 import { AuthData } from "../interfaces"
 import storage from "../utils/storage"
 import api from "../utils/api"
+import { userInfo } from "os"
+import { path } from "ramda"
 
 const nullUser = {
   email: "",
@@ -92,9 +94,11 @@ function AuthProvider(props) {
     }
   }
 
+  const getToken = () => path(["user", "authToken"], data)
+
   return (
     <AuthContext.Provider
-      value={{ data, login, logout, tryRenew }}
+      value={{ data, login, logout, tryRenew, getToken }}
       {...props}
     />
   )

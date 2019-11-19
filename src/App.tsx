@@ -18,11 +18,13 @@ import "./App.css"
 import { useAuth } from "./context/authContext"
 
 const AuthenticatedApp = _props => {
+  const { getToken } = useAuth()
+
   useEffect(() => {
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
     let socket = new Socket(socketUrl)
     socket.connect()
-    let channel = socket.channel("status:update", {})
+    let channel = socket.channel("status:update", { token: getToken() })
     channel
       .join()
       .receive("ok", resp => {})
