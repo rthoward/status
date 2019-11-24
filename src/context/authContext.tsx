@@ -52,8 +52,14 @@ function AuthProvider(props) {
 
   const [data, setData] = useState(defaultData)
 
-  const login = ({ email, authToken, renewToken }) => {
-    const user: any = { email, authToken, renewToken, isAuthenticated: true }
+  const login = ({ email, authToken, renewToken, socketToken }) => {
+    const user: any = {
+      email,
+      authToken,
+      renewToken,
+      socketToken,
+      isAuthenticated: true
+    }
     storage.set("user", user)
     api.setAuthHeader(authToken)
     setData({ user })
@@ -70,11 +76,12 @@ function AuthProvider(props) {
     if (user && user.renewToken) {
       api.renew({ renewToken: user.renewToken }).then(response => {
         if (response.ok) {
-          const { token, renew_token } = response.data.data
+          const { token, renew_token, socket_token } = response.data.data
           const updatedUser = {
             ...user,
             authToken: token,
             renewToken: renew_token,
+            socketToken: socket_token,
             isAuthenticated: true
           }
           setData({ user: updatedUser })

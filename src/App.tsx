@@ -1,5 +1,4 @@
 import React, { useEffect } from "react"
-import { Socket } from "phoenix"
 import Container from "react-bootstrap/Container"
 import {
   BrowserRouter as Router,
@@ -18,21 +17,6 @@ import "./App.css"
 import { useAuth } from "./context/authContext"
 
 const AuthenticatedApp = _props => {
-  useEffect(() => {
-    const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
-    let socket = new Socket(socketUrl)
-    socket.connect()
-    let channel = socket.channel("status:update", {})
-    channel
-      .join()
-      .receive("ok", resp => {})
-      .receive("error", resp => {})
-
-    return () => {
-      socket.disconnect()
-    }
-  }, [])
-
   return (
     <div>
       <Container fluid>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react"
 import * as R from "ramda"
+import { Socket } from "phoenix"
 
 import api from "../utils/api"
 import { useAuth } from "../context/authContext"
+import { useUser } from "../context/userContext"
 
 const UserAvatar = ({ user }) => {
   return <div className="UserAvatar">{user.avatar}</div>
@@ -22,7 +24,7 @@ const Place = ({ name, statuses }) => {
 }
 
 const Statuses = _props => {
-  const auth = useAuth()
+  const user = useUser()
   const [statusesByLocation, setStatusesByLocation] = useState({})
   const getStatusesByLocation = location =>
     R.propOr([], location)(statusesByLocation)
@@ -36,6 +38,31 @@ const Statuses = _props => {
       }
     })
   }, [])
+
+  useEffect(() => {
+    console.log("joining")
+    console.log(user)
+    const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
+    let socket = new Socket(socketUrl, { params: { token: user.socketToken } })
+    socket.connect()
+    let channel = socket.channel("status:update")
+    channel
+      .join()
+      .receive("ok", resp => {
+        console.log("joined")
+      })
+      .receive("error", resp => {
+        console.log("failed to join", resp)
+      })
+
+    channel.on("meow", message => {
+      console.log("meow handler", message)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [user])
 
   return (
     <div className="status-container">

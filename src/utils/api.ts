@@ -6,6 +6,7 @@ interface LoginResponse {
     email: string
     token: string
     renew_token: string
+    socket_token: string
   }
 }
 

@@ -32,13 +32,18 @@ export default _props => {
     api.login({ email, password }).then(response => {
       if (response.ok) {
         const {
-          data: { token: authToken, renew_token: renewToken }
+          data: {
+            token: authToken,
+            renew_token: renewToken,
+            socket_token: socketToken
+          }
         } = response.data!
         actions.setSubmitting(false)
-        auth.login({ email, authToken, renewToken })
+        auth.login({ email, authToken, renewToken, socketToken })
         history.push(redirectTo || "/")
       } else {
-        mapErrors(validationSchema, response.data!.error, actions)
+        response.data &&
+          mapErrors(validationSchema, response.data.error, actions)
       }
     })
   }
