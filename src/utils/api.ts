@@ -1,5 +1,7 @@
 import { create, ApiResponse } from "apisauce"
+
 import config from "../config"
+import { Status } from "../types"
 
 interface LoginResponse {
   data: {
@@ -29,14 +31,6 @@ interface ErrorResponse {
     message?: string
     errors: object
   }
-}
-
-interface Status {
-  id: number
-  user: number
-  location: string
-  inserted_at: string
-  updated_at: string
 }
 
 interface StatusResponse {
@@ -90,6 +84,10 @@ class Api {
 
   async statuses(): Promise<ApiResponse<StatusResponse>> {
     return this.api.get("/status")
+  }
+
+  async createStatus({ location }): Promise<any> {
+    return this.api.post("/status", { status: { location } })
   }
 }
 

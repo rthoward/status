@@ -3,8 +3,10 @@ import * as R from "ramda"
 import { Socket } from "phoenix"
 
 import api from "../utils/api"
-import { useAuth } from "../context/authContext"
 import { useUser } from "../context/userContext"
+import { Status } from "../types"
+
+import Button from "react-bootstrap/Button"
 
 const UserAvatar = ({ user }) => {
   return <div className="UserAvatar">{user.avatar}</div>
@@ -23,11 +25,37 @@ const Place = ({ name, statuses }) => {
   )
 }
 
+const LocationPicker = ({ locations, updateStatus }) => {
+  return (
+    <div>
+      {locations.map((locationName, i) => (
+        <Button
+          variant="primary"
+          type="button"
+          className="LocationPicker__button"
+          onClick={() => updateStatus(locationName)}
+          key={i}
+        >
+          {locationName}
+        </Button>
+      ))}
+    </div>
+  )
+}
+
 const Statuses = _props => {
+  const locations = ["home", "work", "heading-home", "gym", "out"]
   const user = useUser()
-  const [statusesByLocation, setStatusesByLocation] = useState({})
+  const [statusesByLocation, setStatusesByLocation] = useState<
+    { [key: string]: Status[] } | undefined
+  >(undefined)
   const getStatusesByLocation = location =>
     R.propOr([], location)(statusesByLocation)
+
+  const updateLocation = location => {
+    console.log("updating location to ", location)
+    api.createStatus({ location })
+  }
 
   useEffect(() => {
     api.statuses().then(response => {
@@ -40,8 +68,6 @@ const Statuses = _props => {
   }, [])
 
   useEffect(() => {
-    console.log("joining")
-    console.log(user)
     const socketUrl = `${process.env.REACT_APP_WS_BASE}/socket`
     let socket = new Socket(socketUrl, { params: { token: user.socketToken } })
     socket.connect()
@@ -55,25 +81,38 @@ const Statuses = _props => {
         console.log("failed to join", resp)
       })
 
-    channel.on("meow", message => {
-      console.log("meow handler", message)
+    channel.on("update", message => {
+      const newStatus: Status = message.status
+      if (!newStatus) {
+        return
+      }
+
+      const flatStatuses = R.flatten(R.values(statusesByLocation || {}))
+      const updatedFlatStatuses = flatStatuses.map(status =>
+        status.user_id == newStatus.user_id ? newStatus : status
+      )
+      const newStatusesByLocation = R.groupBy(
+        R.prop("location"),
+        updatedFlatStatuses
+      )
+      setStatusesByLocation(newStatusesByLocation)
     })
 
     return () => {
       socket.disconnect()
     }
-  }, [user])
+  }, [user, statusesByLocation])
 
   return (
     <div className="status-container">
-      <Place name="home" statuses={getStatusesByLocation("home")} />
-      <Place name="work" statuses={getStatusesByLocation("work")} />
-      <Place
-        name="heading-home"
-        statuses={getStatusesByLocation("heading-home")}
-      />
-      <Place name="gym" statuses={getStatusesByLocation("gym")} />
-      <Place name="out" statuses={getStatusesByLocation("out")} />
+      <LocationPicker locations={locations} updateStatus={updateLocation} />
+      {locations.map((locationName, i) => (
+        <Place
+          name={locationName}
+          statuses={getStatusesByLocation(locationName)}
+          key={i}
+        />
+      ))}
     </div>
   )
 }
