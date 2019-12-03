@@ -16,3 +16,7 @@ export interface User extends Timestamped {
   username: string,
   avatar: string
 }
+
+export interface Location {
+  name: string
+}

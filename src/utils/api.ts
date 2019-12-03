@@ -1,7 +1,7 @@
 import { create, ApiResponse } from "apisauce"
 
 import config from "../config"
-import { Status } from "../types"
+import { Status, Location } from "../types"
 
 interface LoginResponse {
   data: {
@@ -36,6 +36,12 @@ interface ErrorResponse {
 interface StatusResponse {
   data: {
     statuses: Status[]
+  }
+}
+
+interface LocationResponse {
+  data: {
+    locations: Location[]
   }
 }
 
@@ -80,6 +86,10 @@ class Api {
 
   async health(): Promise<any> {
     return this.api.get("/health")
+  }
+
+  async locations(): Promise<ApiResponse<LocationResponse>> {
+    return this.api.get("/locations")
   }
 
   async statuses(): Promise<ApiResponse<StatusResponse>> {

@@ -4,17 +4,25 @@ import { Socket } from "phoenix"
 
 import api from "../utils/api"
 import { useUser } from "../context/userContext"
-import { Status } from "../types"
+import { Status, Location } from "../types"
 
 import Button from "react-bootstrap/Button"
+
+const colors = ["#f7be87", "#8ca4b1", "#aacfaa", "#f9dca9", "#f9bfa5"]
+const getColor = index => colors[index % colors.length]
 
 const UserAvatar = ({ user }) => {
   return <div className="UserAvatar">{user.avatar}</div>
 }
 
-const Place = ({ name, statuses }) => {
+const Place = ({ name, statuses, height, color }) => {
+  const style = {
+    flexBasis: `${height}%`,
+    backgroundColor: color
+  }
+
   return (
-    <div className={`Place Place_${name}`}>
+    <div className={`Place Place_${name}`} style={style}>
       <span className="Place-title">{name}</span>
       <div className="avatars-container">
         {statuses.map((status: any, i) => (
@@ -28,15 +36,15 @@ const Place = ({ name, statuses }) => {
 const LocationPicker = ({ locations, updateStatus }) => {
   return (
     <div>
-      {locations.map((locationName, i) => (
+      {locations.map((location, i) => (
         <Button
           variant="primary"
           type="button"
           className="LocationPicker__button"
-          onClick={() => updateStatus(locationName)}
+          onClick={() => updateStatus(location.name)}
           key={i}
         >
-          {locationName}
+          {location.name}
         </Button>
       ))}
     </div>
@@ -44,7 +52,7 @@ const LocationPicker = ({ locations, updateStatus }) => {
 }
 
 const Statuses = _props => {
-  const locations = ["home", "work", "heading-home", "gym", "out"]
+  const [locations, setLocations] = useState<Location[]>([])
   const user = useUser()
   const [statusesByLocation, setStatusesByLocation] = useState<
     { [key: string]: Status[] } | undefined
@@ -58,13 +66,20 @@ const Statuses = _props => {
   }
 
   useEffect(() => {
-    api.statuses().then(response => {
-      if (response.ok) {
-        const statuses = response.data!.data.statuses
-        const statusesByLocation = R.groupBy(R.prop("location"), statuses)
-        setStatusesByLocation(statusesByLocation)
-      }
-    })
+    api
+      .locations()
+      .then(response => {
+        const locations = response.data!.data.locations
+        setLocations(locations)
+      })
+      .then(() => api.statuses())
+      .then(response => {
+        if (response.ok) {
+          const statuses = response.data!.data.statuses
+          const statusesByLocation = R.groupBy(R.prop("location"), statuses)
+          setStatusesByLocation(statusesByLocation)
+        }
+      })
   }, [])
 
   useEffect(() => {
@@ -103,13 +118,17 @@ const Statuses = _props => {
     }
   }, [user, statusesByLocation])
 
+  const placeHeight = 100 / locations.length
+
   return (
     <div className="status-container">
       <LocationPicker locations={locations} updateStatus={updateLocation} />
-      {locations.map((locationName, i) => (
+      {locations.map((location, i) => (
         <Place
-          name={locationName}
-          statuses={getStatusesByLocation(locationName)}
+          name={location.name}
+          height={placeHeight}
+          color={getColor(i)}
+          statuses={getStatusesByLocation(location.name)}
           key={i}
         />
       ))}
