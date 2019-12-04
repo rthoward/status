@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useReducer } from "react"
 import * as R from "ramda"
 import { Socket } from "phoenix"
 
@@ -7,6 +7,40 @@ import { useUser } from "../context/userContext"
 import { Status, Location } from "../types"
 
 import Button from "react-bootstrap/Button"
+
+export interface StatusesState {
+  locations: Location[]
+  statusesByLocation: { [key: string]: Status[] } | undefined
+}
+
+export enum StatusesAction {
+  SET_LOCATIONS,
+  SET_STATUSES,
+  UPDATE_STATUS
+}
+
+export const statusesReducer = (state: StatusesState, action) => {
+  switch (action.type) {
+    case StatusesAction.SET_LOCATIONS:
+      const { locations } = action.payload
+      return { ...state, locations }
+    case StatusesAction.SET_STATUSES:
+      const statuses: Status[] = action.payload.statuses
+      const statusesByLocation = R.groupBy(R.prop("location"), statuses)
+      return { ...state, statusesByLocation }
+    case StatusesAction.UPDATE_STATUS:
+      console.log("updating status")
+      const newStatus = action.payload.status
+      const flatStatuses = R.flatten(R.values(state.statusesByLocation || {}))
+      const withNewStatus = R.append(newStatus, flatStatuses)
+      const updatedFlatStatuses = R.uniqBy((s: Status) => s.user_id, withNewStatus)
+      const newStatusesByLocation = R.groupBy(
+        R.prop("location"),
+        updatedFlatStatuses
+      )
+      return { ...state, statusesByLocation: newStatusesByLocation }
+  }
+}
 
 const colors = ["#f7be87", "#8ca4b1", "#aacfaa", "#f9dca9", "#f9bfa5"]
 const getColor = index => colors[index % colors.length]
@@ -52,32 +86,33 @@ const LocationPicker = ({ locations, updateStatus }) => {
 }
 
 const Statuses = _props => {
-  const [locations, setLocations] = useState<Location[]>([])
   const user = useUser()
-  const [statusesByLocation, setStatusesByLocation] = useState<
-    { [key: string]: Status[] } | undefined
-  >(undefined)
   const getStatusesByLocation = location =>
-    R.propOr([], location)(statusesByLocation)
+    R.propOr([], location)(state.statusesByLocation)
 
   const updateLocation = location => {
-    console.log("updating location to ", location)
     api.createStatus({ location })
   }
+
+  const initialState: StatusesState = {
+    locations: [],
+    statusesByLocation: undefined
+  }
+  // @ts-ignore
+  const [state, dispatch] = useReducer(statusesReducer, initialState)
 
   useEffect(() => {
     api
       .locations()
       .then(response => {
         const locations = response.data!.data.locations
-        setLocations(locations)
+        dispatch({ type: StatusesAction.SET_LOCATIONS, payload: { locations } })
       })
       .then(() => api.statuses())
       .then(response => {
         if (response.ok) {
           const statuses = response.data!.data.statuses
-          const statusesByLocation = R.groupBy(R.prop("location"), statuses)
-          setStatusesByLocation(statusesByLocation)
+          dispatch({ type: StatusesAction.SET_STATUSES, payload: { statuses } })
         }
       })
   }, [])
@@ -101,29 +136,26 @@ const Statuses = _props => {
       if (!newStatus) {
         return
       }
-
-      const flatStatuses = R.flatten(R.values(statusesByLocation || {}))
-      const updatedFlatStatuses = flatStatuses.map(status =>
-        status.user_id == newStatus.user_id ? newStatus : status
-      )
-      const newStatusesByLocation = R.groupBy(
-        R.prop("location"),
-        updatedFlatStatuses
-      )
-      setStatusesByLocation(newStatusesByLocation)
+      dispatch({
+        type: StatusesAction.UPDATE_STATUS,
+        payload: { status: newStatus }
+      })
     })
 
     return () => {
       socket.disconnect()
     }
-  }, [user, statusesByLocation])
+  }, [user, state.statusesByLocation])
 
-  const placeHeight = 100 / locations.length
+  const placeHeight = 100 / state.locations.length
 
   return (
     <div className="status-container">
-      <LocationPicker locations={locations} updateStatus={updateLocation} />
-      {locations.map((location, i) => (
+      <LocationPicker
+        locations={state.locations}
+        updateStatus={updateLocation}
+      />
+      {state.locations.map((location, i) => (
         <Place
           name={location.name}
           height={placeHeight}
