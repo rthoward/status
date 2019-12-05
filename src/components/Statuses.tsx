@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useReducer } from "react"
+import React, { useEffect, useReducer } from "react"
 import * as R from "ramda"
 import { Socket } from "phoenix"
 
 import api from "../utils/api"
 import { useUser } from "../context/userContext"
 import { Status, Location } from "../types"
+import { useLongPress } from "../hooks"
 
 import Button from "react-bootstrap/Button"
 import ButtonGroup from "react-bootstrap/ButtonGroup"
@@ -53,40 +54,21 @@ const UserAvatar = ({ user }) => {
   return <div className="UserAvatar">{user.avatar}</div>
 }
 
-const Place = ({ name, statuses, height, color }) => {
+const Place = ({ name, statuses, height, color, updateLocation }) => {
+  const updateLocation_ = useLongPress(() => updateLocation(name), 500)
   const style = {
     flexBasis: `${height}%`,
     backgroundColor: color
   }
 
   return (
-    <div className={`Place Place_${name}`} style={style}>
+    <div className={`Place Place_${name}`} style={style} {...updateLocation_}>
       <span className="Place-title">{name}</span>
       <div className="avatars-container">
         {statuses.map((status: any, i) => (
           <UserAvatar user={status.user} key={i} />
         ))}
       </div>
-    </div>
-  )
-}
-
-const LocationPicker = ({ locations, updateStatus }) => {
-  return (
-    <div className="LocationPicker">
-      <ButtonGroup>
-        {locations.map((location, i) => (
-          <Button
-            variant="secondary"
-            type="button"
-            className="LocationPicker__button"
-            onClick={() => updateStatus(location.name)}
-            key={i}
-          >
-            {location.name}
-          </Button>
-        ))}
-      </ButtonGroup>
     </div>
   )
 }
@@ -157,10 +139,6 @@ const Statuses = _props => {
 
   return (
     <div className="status-container">
-      <LocationPicker
-        locations={state.locations}
-        updateStatus={updateLocation}
-      />
       {state.locations.map((location, i) => (
         <Place
           name={location.name}
@@ -168,6 +146,7 @@ const Statuses = _props => {
           color={getColor(i)}
           statuses={getStatusesByLocation(location.name)}
           key={i}
+          updateLocation={updateLocation}
         />
       ))}
     </div>

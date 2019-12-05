@@ -32,3 +32,30 @@ export const useHealth = config.useHealth
       return health
     }
   : () => true
+
+export const useLongPress = (callback = () => {}, ms = 300) => {
+  const [startLongPress, setStartLongPress] = useState(false)
+
+  useEffect(() => {
+    console.log("event")
+    let timerId
+    if (startLongPress) {
+      timerId = setTimeout(callback, ms)
+    } else {
+      console.log("clearing timeout")
+      clearTimeout(timerId)
+    }
+
+    return () => {
+      clearTimeout(timerId)
+    }
+  }, [startLongPress, callback, ms])
+
+  return {
+    onMouseDown: () => setStartLongPress(true),
+    onMouseUp: () => setStartLongPress(false),
+    onMouseLeave: () => setStartLongPress(false),
+    onTouchStart: () => setStartLongPress(true),
+    onTouchEnd: () => setStartLongPress(false)
+  }
+}
