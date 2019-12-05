@@ -29,14 +29,14 @@ export const statusesReducer = (state: StatusesState, action) => {
       const statusesByLocation = R.groupBy(R.prop("location"), statuses)
       return { ...state, statusesByLocation }
     case StatusesAction.UPDATE_STATUS:
-      console.log("updating status")
-      const newStatus = action.payload.status
+      const newStatus: Status = action.payload.status
       const flatStatuses = R.flatten(R.values(state.statusesByLocation || {}))
-      const withNewStatus = R.append(newStatus, flatStatuses)
-      const updatedFlatStatuses = R.uniqBy(
-        (s: Status) => s.user_id,
-        withNewStatus
+      const withoutOldStatus = R.reject(
+        (s: Status) => s.user_id === newStatus.user_id,
+        flatStatuses
       )
+      const withNewStatus = R.append(newStatus, withoutOldStatus)
+      const updatedFlatStatuses = R.uniqBy(s => s.user_id, withNewStatus)
       const newStatusesByLocation = R.groupBy(
         R.prop("location"),
         updatedFlatStatuses
@@ -148,7 +148,7 @@ const Statuses = _props => {
     return () => {
       socket.disconnect()
     }
-  }, [user, state.statusesByLocation])
+  }, [user])
 
   const placeHeight = 100 / state.locations.length
 

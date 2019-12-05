@@ -1,11 +1,8 @@
 import React from "react"
-import ReactDOM from "react-dom"
-import Statuses from "./Statuses"
-import { render } from "@testing-library/react"
 import { UserProvider } from "../context/userContext"
 import { AuthProvider } from "../context/authContext"
 import { statusesReducer, StatusesAction } from "./Statuses"
-import { Location, Status } from "../types"
+import { Status } from "../types"
 import * as R from "ramda"
 
 const buildStatus = (id, data = {}): any =>
@@ -37,10 +34,6 @@ const withUser = component => {
     </AuthProvider>
   )
 }
-
-// test("it renders", () => {
-//   render(withUser(<Statuses />))
-// })
 
 describe("statusesReducer", () => {
   const initialState = {
@@ -88,12 +81,12 @@ describe("statusesReducer", () => {
     const _initialState = {
       ...initialState,
       statusesByLocation: {
-        home: [],
+        home: [buildStatus(2, { location: "home" })],
         work: [buildStatus(1, { location: "work" })]
       }
     }
 
-    const newStatus = buildStatus(2, { location: "home" })
+    const newStatus = buildStatus(3, { location: "work" })
 
     const newState = statusesReducer(_initialState, {
       type: StatusesAction.UPDATE_STATUS,
@@ -102,11 +95,31 @@ describe("statusesReducer", () => {
       }
     })
 
-    const expected = {
-      home: [newStatus],
-      work: [buildStatus(1, { location: "work" })]
+    expect(R.path(["statusesByLocation", "work"], newState)).toHaveLength(2)
+  })
+
+  test("UPDATE_STATUS when user has an existing status", () => {
+    const _initialState = {
+      ...initialState,
+      statusesByLocation: {
+        home: [buildStatus(2, { location: "home" })],
+        work: [
+          buildStatus(1, { location: "work" }),
+          buildStatus(3, { location: "work" })
+        ]
+      }
     }
 
-    expect(newState && newState.statusesByLocation).toEqual(expected)
+    const newStatus = buildStatus(3, { location: "home" })
+
+    const newState = statusesReducer(_initialState, {
+      type: StatusesAction.UPDATE_STATUS,
+      payload: {
+        status: newStatus
+      }
+    })
+
+    expect(R.path(["statusesByLocation", "home"], newState)).toHaveLength(2)
+    expect(R.path(["statusesByLocation", "work"], newState)).toHaveLength(1)
   })
 })
