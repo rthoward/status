@@ -5,6 +5,7 @@ import * as Yup from "yup"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import InputGroup from "react-bootstrap/InputGroup"
+import Alert from "react-bootstrap/Alert"
 import { useHistory, useLocation } from "react-router-dom"
 
 import { mapErrors } from "../utils/forms"
@@ -156,6 +157,7 @@ export default _props => {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
+            {props.status && <Alert variant="danger">{props.status}</Alert>}
             <Button variant="primary" type="submit">
               Register
             </Button>

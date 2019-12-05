@@ -6,6 +6,7 @@ import { Link, useHistory, useLocation } from "react-router-dom"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import InputGroup from "react-bootstrap/InputGroup"
+import Alert from "react-bootstrap/Alert"
 
 import api from "../utils/api"
 import { useAuth } from "../context/authContext"
@@ -88,6 +89,7 @@ export default _props => {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
+            {props.status && <Alert variant="danger">{props.status}</Alert>}
             <Button variant="primary" type="submit">
               Login
             </Button>
