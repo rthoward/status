@@ -7,6 +7,7 @@ import { useUser } from "../context/userContext"
 import { Status, Location } from "../types"
 
 import Button from "react-bootstrap/Button"
+import ButtonGroup from "react-bootstrap/ButtonGroup"
 
 export interface StatusesState {
   locations: Location[]
@@ -72,18 +73,20 @@ const Place = ({ name, statuses, height, color }) => {
 
 const LocationPicker = ({ locations, updateStatus }) => {
   return (
-    <div>
-      {locations.map((location, i) => (
-        <Button
-          variant="primary"
-          type="button"
-          className="LocationPicker__button"
-          onClick={() => updateStatus(location.name)}
-          key={i}
-        >
-          {location.name}
-        </Button>
-      ))}
+    <div className="LocationPicker">
+      <ButtonGroup>
+        {locations.map((location, i) => (
+          <Button
+            variant="secondary"
+            type="button"
+            className="LocationPicker__button"
+            onClick={() => updateStatus(location.name)}
+            key={i}
+          >
+            {location.name}
+          </Button>
+        ))}
+      </ButtonGroup>
     </div>
   )
 }

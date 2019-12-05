@@ -53,6 +53,6 @@
     text-align: center;
 }
 
-.LocationPicker__button {
-    margin: 0.5rem;
+.LocationPicker {
+    margin: 0.5rem auto;
 }
