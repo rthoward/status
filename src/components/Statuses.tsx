@@ -33,7 +33,10 @@ export const statusesReducer = (state: StatusesState, action) => {
       const newStatus = action.payload.status
       const flatStatuses = R.flatten(R.values(state.statusesByLocation || {}))
       const withNewStatus = R.append(newStatus, flatStatuses)
-      const updatedFlatStatuses = R.uniqBy((s: Status) => s.user_id, withNewStatus)
+      const updatedFlatStatuses = R.uniqBy(
+        (s: Status) => s.user_id,
+        withNewStatus
+      )
       const newStatusesByLocation = R.groupBy(
         R.prop("location"),
         updatedFlatStatuses
