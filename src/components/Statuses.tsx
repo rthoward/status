@@ -7,9 +7,6 @@ import { useUser } from "../context/userContext"
 import { Status, Location } from "../types"
 import { useLongPress } from "../hooks"
 
-import Button from "react-bootstrap/Button"
-import ButtonGroup from "react-bootstrap/ButtonGroup"
-
 export interface StatusesState {
   locations: Location[]
   statusesByLocation: { [key: string]: Status[] } | undefined

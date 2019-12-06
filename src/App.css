@@ -12,6 +12,7 @@
     padding: 0.5rem;
     width: 100%;
     flex-basis: 16.66%;
+    user-select: none;
 }
 
 .Place_title {
