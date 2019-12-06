@@ -135,7 +135,7 @@ const Statuses = _props => {
   const placeHeight = 100 / state.locations.length
 
   return (
-    <div className="status-container">
+    <div className="Statuses-container">
       {state.locations.map((location, i) => (
         <Place
           name={location.name}

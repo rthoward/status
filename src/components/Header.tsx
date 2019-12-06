@@ -25,7 +25,7 @@ export default _props => {
   const { logout } = useAuth()
 
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar bg="light" expand="lg" className="Header">
       <Navbar.Brand href="/">Status</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
